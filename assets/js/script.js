@@ -37,8 +37,7 @@ let cantRepos = document.createElement("p");
 let localidad = document.createElement("p");
 let tipoUsuario = document.createElement("p");
 let ul = document.createElement("ul");
-let li = document.createElement("li");
-let a = document.createElement("a");
+
 resultados.setAttribute("class", "row pb-2");
 colInfoUser.setAttribute("class", "col-12 col-sm-6 text-left");
 colRepos.setAttribute("class", "col-12 col-sm-6 text-right");
@@ -56,56 +55,64 @@ const capturaDatos = async (e) => {
     let page = document.getElementById('pagina').value;
     let repoPage = document.getElementById('repoPagina').value;
 
-/* 3. Mediante la implementación de una Promesa, realizar el llamado a las dos funciones
+/*3. Mediante la implementación de una Promesa, realizar el llamado a las dos funciones
 al mismo tiempo que permiten conectarse con la API y traer la información en el
 caso de existir “getUser” y “getRepo”. Pasando como parámetros los valores
-necesarios para cada llamado de la API según la URL. */
+necesarios para cada llamado de la API según la URL.*/
 
-    await Promise.all([
-        getUser(userName).then(user => {
-            const userName = user.name;
-            const login = user.login;
-            const reposCant = user.public_repos;
-            const location = user.location;
-            const userType = user.type;
-            const avatar = user.avatar_url;
-
-            resultados.appendChild(colInfoUser);
-            tituloInfoUser.innerHTML = "Datos del Usuario";
-            colInfoUser.appendChild(tituloInfoUser);
-            img.setAttribute("src", avatar);
-            img.style.width = "12.5rem";
-            colInfoUser.appendChild(img);
-            nombreUser.innerHTML = `Nombre de usuario: ${userName}`;
-            colInfoUser.appendChild(nombreUser);
-            nombreLogin.innerHTML = `Nombre de login: ${login}`;
-            colInfoUser.appendChild(nombreLogin);
-            cantRepos.innerHTML = `Cantidad de Repositorios: ${reposCant}`;
-            colInfoUser.appendChild(cantRepos);
-            localidad.innerHTML = `Localidad: ${location}`;
-            colInfoUser.appendChild(localidad);
-            tipoUsuario.innerHTML = `Tipo de usuario: ${userType}`;
-            colInfoUser.appendChild(tipoUsuario);
-        }),
-        getRepo(userName, page, repoPage).then(repos => {
-            //console.log(getRepo);
-            //console.log(getUser);
-            resultados.appendChild(colRepos);
-            tituloRepos.innerHTML = "Nombre de repositorios";
-            colRepos.appendChild(tituloRepos);
-            
-
-            repos.forEach((element) =>{
-                colRepos.appendChild(ul);
-                ul.appendChild(li);                
-                li.appendChild(a);
-                a.innerHTML = `${element.name}`;
-                a.setAttribute("href",`${element.url}`);
-                a.setAttribute("target",'_blank');
-                li.style.listStyle = "none";
-            });
-        })
-    ])              
+    if(userName == "" || page == "" || repoPage == ""){
+        alert('Debe rellenar todos los campos');
+    }else{
+        await Promise.all([
+            getUser(userName).then(user => {
+                const userName = user.name;
+                const login = user.login;
+                const reposCant = user.public_repos;
+                const location = user.location;
+                const userType = user.type;
+                const avatar = user.avatar_url;
+    
+                resultados.appendChild(colInfoUser);
+                tituloInfoUser.innerHTML = "Datos del Usuario";
+                colInfoUser.appendChild(tituloInfoUser);
+                img.setAttribute("src", avatar);
+                img.style.width = "12.5rem";
+                colInfoUser.appendChild(img);
+                nombreUser.innerHTML = `Nombre de usuario: ${userName}`;
+                colInfoUser.appendChild(nombreUser);
+                nombreLogin.innerHTML = `Nombre de login: ${login}`;
+                colInfoUser.appendChild(nombreLogin);
+                cantRepos.innerHTML = `Cantidad de Repositorios: ${reposCant}`;
+                colInfoUser.appendChild(cantRepos);
+                localidad.innerHTML = `Localidad: ${location}`;
+                colInfoUser.appendChild(localidad);
+                tipoUsuario.innerHTML = `Tipo de usuario: ${userType}`;
+                colInfoUser.appendChild(tipoUsuario);
+            }),
+            getRepo(userName, page, repoPage).then(repos => {
+                resultados.appendChild(colRepos);
+                tituloRepos.innerHTML = "Nombre de repositorios";
+                colRepos.appendChild(tituloRepos);
+                
+                let lista = document.querySelectorAll('li');
+                lista.forEach(li => {
+                    li.parentNode.removeChild(li);
+                });
+    
+                repos.forEach((element) =>{
+                    let li = document.createElement("li");
+                    let a = document.createElement("a");
+                    colRepos.appendChild(ul);
+                    ul.appendChild(li);                
+                    li.appendChild(a);
+                    a.innerHTML = `${element.name}`;
+                    a.setAttribute("href",`${element.url}`);
+                    a.setAttribute("target",'_blank');
+                    li.style.listStyle = "none";
+                });
+            })
+        ])
+    }
+    submit.reset();                
 } 
-
 submit.addEventListener('submit', capturaDatos);
